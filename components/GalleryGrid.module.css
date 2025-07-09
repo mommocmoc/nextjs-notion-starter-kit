@@ -1,0 +1,111 @@
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.galleryItem {
+  position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  height: fit-content;
+}
+
+.galleryItem:hover {
+  transform: translateY(-2px);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--gallery-hover);
+  margin-bottom: 0.5rem;
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.galleryItem:hover .image {
+  transform: scale(1.02);
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: var(--gallery-hover);
+  color: var(--gallery-text-secondary);
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.caption {
+  padding: 0.5rem 0;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.2;
+  color: var(--gallery-text);
+}
+
+.description {
+  font-size: 0.75rem;
+  color: var(--gallery-text-secondary);
+  margin: 0;
+  line-height: 1.3;
+  opacity: 0.8;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .galleryGrid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .galleryGrid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.75rem;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .galleryGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .title {
+    font-size: 0.8rem;
+  }
+  
+  .description {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .galleryGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Dark mode support - variables are handled by CSS custom properties */

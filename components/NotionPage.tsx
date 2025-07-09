@@ -29,6 +29,8 @@ import { NotionPageHeader } from './NotionPageHeader'
 import { Page404 } from './Page404'
 import { PageAside } from './PageAside'
 import { PageHead } from './PageHead'
+import { OverlayNavigation } from './OverlayNavigation'
+import { GalleryGrid } from './GalleryGrid'
 import styles from './styles.module.css'
 
 // -----------------------------------------------------------------------------
@@ -226,13 +228,23 @@ export function NotionPage({
   const keys = Object.keys(recordMap?.block || {})
   const block = recordMap?.block?.[keys[0]!]?.value
 
-  // const isRootPage =
-  //   parsePageId(block?.id) === parsePageId(site?.rootNotionPageId)
+  const isRootPage =
+    pageId === site?.rootNotionPageId
   const isBlogPost =
     block?.type === 'page' && block?.parent_table === 'collection'
 
   const showTableOfContents = !!isBlogPost
   const minTableOfContentsItems = 3
+
+  // Check if this is a collection page for gallery display
+  const isCollectionPage = block?.type === 'collection_view_page' || block?.type === 'collection_view'
+  
+  // Get collection data for gallery
+  const collectionId = block?.collection_id
+  const collection = collectionId ? recordMap?.collection?.[collectionId]?.value : null
+  const collectionViewId = block?.view_ids?.[0]
+  const collectionView = collectionViewId ? recordMap?.collection_view?.[collectionViewId]?.value : null
+  const collectionData = collectionId ? recordMap?.collection_query?.[collectionId]?.[collectionViewId!] : null
 
   const pageAside = React.useMemo(
     () => (
@@ -288,6 +300,40 @@ export function NotionPage({
     getPageProperty<string>('Description', block, recordMap) ||
     config.description
 
+  // For gallery layout on root page
+  if (isRootPage && collection && collectionData) {
+    return (
+      <>
+        <PageHead
+          pageId={pageId}
+          site={site}
+          title={title}
+          description={socialDescription}
+          image={socialImage}
+          url={canonicalPageUrl}
+        />
+
+        {isLiteMode && <BodyClassName className='notion-lite' />}
+        {isDarkMode && <BodyClassName className='dark-mode' />}
+        <BodyClassName className='gallery-layout' />
+
+        <OverlayNavigation site={site} />
+        
+        <div className={styles.galleryContainer}>
+          <GalleryGrid
+            site={site}
+            recordMap={recordMap}
+            collection={collection}
+            collectionView={collectionView}
+            collectionData={collectionData}
+          />
+        </div>
+
+        <GitHubShareButton />
+      </>
+    )
+  }
+
   return (
     <>
       <PageHead
@@ -301,6 +347,8 @@ export function NotionPage({
 
       {isLiteMode && <BodyClassName className='notion-lite' />}
       {isDarkMode && <BodyClassName className='dark-mode' />}
+
+      <OverlayNavigation site={site} />
 
       <NotionRenderer
         bodyClassName={cs(

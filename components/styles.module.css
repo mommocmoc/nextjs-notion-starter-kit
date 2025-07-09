@@ -219,3 +219,14 @@
 .hidden {
   visibility: hidden;
 }
+
+.notion {
+  --notion-max-width: 720px;
+  --notion-header-height: 54px;
+}
+
+.galleryContainer {
+  min-height: 100vh;
+  padding-top: 120px;
+  background: var(--notion-bg);
+}

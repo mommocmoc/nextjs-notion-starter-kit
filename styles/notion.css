@@ -12,6 +12,29 @@
   --notion-header-height: 54px;
 }
 
+/* Clean minimal color palette */
+:root {
+  --gallery-bg: #fafafa;
+  --gallery-text: #1a1a1a;
+  --gallery-text-secondary: #666;
+  --gallery-border: #e5e5e5;
+  --gallery-hover: #f5f5f5;
+}
+
+.dark-mode {
+  --gallery-bg: #0a0a0a;
+  --gallery-text: #f5f5f5;
+  --gallery-text-secondary: #a0a0a0;
+  --gallery-border: #262626;
+  --gallery-hover: #1a1a1a;
+}
+
+/* Gallery layout overrides */
+.gallery-layout {
+  background: var(--gallery-bg) !important;
+  color: var(--gallery-text) !important;
+}
+
 .notion-frame {
   padding: 0;
 }

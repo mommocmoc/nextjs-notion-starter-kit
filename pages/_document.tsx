@@ -5,7 +5,7 @@ export default class MyDocument extends Document {
   override render() {
     return (
       <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
-        <Html lang='en'>
+        <Html lang='ko'>
           <Head>
             <link rel='shortcut icon' href='/favicon.ico' />
             <link
@@ -16,6 +16,14 @@ export default class MyDocument extends Document {
             />
 
             <link rel='manifest' href='/manifest.json' />
+            
+            {/* Google Fonts with Korean support */}
+            <link rel='preconnect' href='https://fonts.googleapis.com' />
+            <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='' />
+            <link
+              href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap'
+              rel='stylesheet'
+            />
           </Head>
 
           <body>
