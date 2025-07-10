@@ -12,27 +12,38 @@
   --notion-header-height: 54px;
 }
 
-/* Clean minimal color palette */
+/* Refined minimal color palette */
 :root {
-  --gallery-bg: #fafafa;
-  --gallery-text: #1a1a1a;
-  --gallery-text-secondary: #666;
-  --gallery-border: #e5e5e5;
-  --gallery-hover: #f5f5f5;
+  --gallery-bg: #fdfdfd;
+  --gallery-text: #111111;
+  --gallery-text-secondary: #555555;
+  --gallery-border: #eeeeee;
+  --gallery-hover: #f8f8f8;
+  --gallery-accent: rgba(171, 255, 88, 0.08);
+  --gallery-accent-text: rgba(171, 255, 88, 0.9);
 }
 
 .dark-mode {
-  --gallery-bg: #0a0a0a;
-  --gallery-text: #f5f5f5;
-  --gallery-text-secondary: #a0a0a0;
-  --gallery-border: #262626;
-  --gallery-hover: #1a1a1a;
+  --gallery-bg: #070707;
+  --gallery-text: #f8f8f8;
+  --gallery-text-secondary: #999999;
+  --gallery-border: #1a1a1a;
+  --gallery-hover: #111111;
+  --gallery-accent: rgba(171, 255, 88, 0.05);
+  --gallery-accent-text: rgba(171, 255, 88, 0.8);
 }
 
 /* Gallery layout overrides */
 .gallery-layout {
   background: var(--gallery-bg) !important;
   color: var(--gallery-text) !important;
+}
+
+/* Hide page icon in detail pages */
+.notion-page-icon-hero,
+.notion-page-icon-cover,
+.notion-page-icon-wrapper {
+  display: none !important;
 }
 
 .notion-frame {

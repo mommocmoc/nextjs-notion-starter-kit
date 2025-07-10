@@ -28,14 +28,6 @@ export function OverlayNavigation({ site }: OverlayNavigationProps) {
           
           <div className={styles.navControls}>
             <button 
-              onClick={toggleDarkMode} 
-              className={styles.themeToggle}
-              aria-label="Toggle theme"
-            >
-              {isDarkMode ? '☀️' : '🌙'}
-            </button>
-            
-            <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className={styles.menuToggle}
               aria-label="Toggle menu"

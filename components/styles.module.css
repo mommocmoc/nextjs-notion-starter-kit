@@ -227,6 +227,6 @@
 
 .galleryContainer {
   min-height: 100vh;
-  padding-top: 120px;
-  background: var(--notion-bg);
+  padding-top: 100px;
+  background: var(--gallery-bg);
 }

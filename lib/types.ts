@@ -4,6 +4,9 @@ import { type ExtendedRecordMap, type PageMap } from 'notion-types'
 
 export * from 'notion-types'
 
+// Re-export SiteConfig to unify type imports across the codebase
+export type { SiteConfig } from './site-config'
+
 export type NavigationStyle = 'default' | 'custom'
 
 export interface PageError {

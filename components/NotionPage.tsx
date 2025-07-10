@@ -31,6 +31,7 @@ import { PageAside } from './PageAside'
 import { PageHead } from './PageHead'
 import { OverlayNavigation } from './OverlayNavigation'
 import { GalleryGrid } from './GalleryGrid'
+import { NotionApiGallery } from './NotionApiGallery'
 import styles from './styles.module.css'
 
 // -----------------------------------------------------------------------------
@@ -236,15 +237,39 @@ export function NotionPage({
   const showTableOfContents = !!isBlogPost
   const minTableOfContentsItems = 3
 
-  // Check if this is a collection page for gallery display
-  const isCollectionPage = block?.type === 'collection_view_page' || block?.type === 'collection_view'
+  // Always show gallery layout for root page
+  const shouldShowGallery = isRootPage
   
-  // Get collection data for gallery
-  const collectionId = block?.collection_id
-  const collection = collectionId ? recordMap?.collection?.[collectionId]?.value : null
-  const collectionViewId = block?.view_ids?.[0]
-  const collectionView = collectionViewId ? recordMap?.collection_view?.[collectionViewId]?.value : null
-  const collectionData = collectionId ? recordMap?.collection_query?.[collectionId]?.[collectionViewId!] : null
+  // Get collection data for gallery - check all possible collection sources
+  let collectionId = block?.collection_id
+  let collection = null
+  let collectionView = null
+  let collectionData = null
+  
+  if (collectionId) {
+    collection = recordMap?.collection?.[collectionId]?.value
+    const collectionViewId = block?.view_ids?.[0]
+    collectionView = collectionViewId ? recordMap?.collection_view?.[collectionViewId]?.value : null
+    collectionData = collectionId ? recordMap?.collection_query?.[collectionId]?.[collectionViewId!] : null
+  }
+  
+  // If no direct collection, look for collections in the page content
+  if (!collection && recordMap?.collection) {
+    const collectionIds = Object.keys(recordMap.collection)
+    if (collectionIds.length > 0) {
+      collectionId = collectionIds[0]
+      collection = recordMap.collection[collectionId]?.value
+      
+      // Find the first collection view
+      if (recordMap.collection_view) {
+        const viewIds = Object.keys(recordMap.collection_view)
+        if (viewIds.length > 0) {
+          collectionView = recordMap.collection_view[viewIds[0]]?.value
+          collectionData = recordMap.collection_query?.[collectionId]?.[viewIds[0]]
+        }
+      }
+    }
+  }
 
   const pageAside = React.useMemo(
     () => (
@@ -301,7 +326,7 @@ export function NotionPage({
     config.description
 
   // For gallery layout on root page
-  if (isRootPage && collection && collectionData) {
+  if (shouldShowGallery) {
     return (
       <>
         <PageHead
@@ -320,16 +345,9 @@ export function NotionPage({
         <OverlayNavigation site={site} />
         
         <div className={styles.galleryContainer}>
-          <GalleryGrid
-            site={site}
-            recordMap={recordMap}
-            collection={collection}
-            collectionView={collectionView}
-            collectionData={collectionData}
-          />
+          <NotionApiGallery databaseId={collectionId} />
         </div>
 
-        <GitHubShareButton />
       </>
     )
   }
@@ -375,7 +393,6 @@ export function NotionPage({
         footer={footer}
       />
 
-      <GitHubShareButton />
     </>
   )
 }
