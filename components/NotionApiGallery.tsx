@@ -30,7 +30,9 @@ function GalleryItem({ item }: GalleryItemProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [aspectRatio, setAspectRatio] = useState<number | null>(null)
   const [gridSize, setGridSize] = useState<string>('medium')
+  const [actualWidth, setActualWidth] = useState<number | null>(null)
   const videoRef = React.useRef<HTMLVideoElement>(null)
+  const imageContainerRef = React.useRef<HTMLDivElement>(null)
   
   // 비율에 따른 그리드 크기 계산
   const calculateGridSize = (ratio: number) => {
@@ -41,20 +43,38 @@ function GalleryItem({ item }: GalleryItemProps) {
     return 'small'                      // 매우 세로로 긴 이미지
   }
 
-  // 이미지 로딩 완료 시 비율 계산
+  // 이미지 로딩 완료 시 비율 계산 및 실제 너비 측정
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget
     const ratio = img.naturalWidth / img.naturalHeight
     setAspectRatio(ratio)
     setGridSize(calculateGridSize(ratio))
+    
+    // 실제 렌더링된 이미지 크기 측정
+    setTimeout(() => {
+      if (imageContainerRef.current) {
+        const containerRect = imageContainerRef.current.getBoundingClientRect()
+        const actualImageWidth = Math.min(containerRect.width, containerRect.height * ratio)
+        setActualWidth(actualImageWidth)
+      }
+    }, 100)
   }
 
-  // 비디오 로딩 완료 시 비율 계산
+  // 비디오 로딩 완료 시 비율 계산 및 실제 너비 측정
   const handleVideoLoad = () => {
     if (videoRef.current) {
       const ratio = videoRef.current.videoWidth / videoRef.current.videoHeight
       setAspectRatio(ratio)
       setGridSize(calculateGridSize(ratio))
+      
+      // 실제 렌더링된 비디오 크기 측정
+      setTimeout(() => {
+        if (imageContainerRef.current) {
+          const containerRect = imageContainerRef.current.getBoundingClientRect()
+          const actualVideoWidth = Math.min(containerRect.width, containerRect.height * ratio)
+          setActualWidth(actualVideoWidth)
+        }
+      }, 100)
     }
   }
   
@@ -81,7 +101,10 @@ function GalleryItem({ item }: GalleryItemProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className={styles.imageContainer}>
+      <div 
+        ref={imageContainerRef}
+        className={styles.imageContainer}
+      >
         {item.imageUrl && !imageError ? (
           item.mediaType === 'video' ? (
             <>
@@ -133,7 +156,13 @@ function GalleryItem({ item }: GalleryItemProps) {
           </div>
         )}
       </div>
-      <div className={styles.caption}>
+      <div 
+        className={styles.caption}
+        style={{ 
+          width: actualWidth ? `${actualWidth}px` : '100%',
+          maxWidth: '100%'
+        }}
+      >
         <h3 className={styles.title}>{item.title}</h3>
         <p className={styles.date}>{item.formattedDate}</p>
         {item.description && (
