@@ -13,6 +13,9 @@ export default async function handler(
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
+  // API 응답 캐싱 설정 (5분)
+  res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+
   try {
     // 환경변수를 우선으로 사용, 없으면 쿼리 파라미터 사용
     const databaseId = process.env.NOTION_DATABASE_ID || req.query.databaseId
@@ -21,9 +24,10 @@ export default async function handler(
       return res.status(400).json({ message: 'Database ID is required. Set NOTION_DATABASE_ID environment variable or provide databaseId query parameter.' })
     }
 
-    // Notion API를 사용해서 데이터베이스 쿼리
+    // Notion API를 사용해서 데이터베이스 쿼리 (페이지 크기 제한으로 성능 향상)
     const response = await notion.databases.query({
       database_id: databaseId as string,
+      page_size: 50, // 한 번에 최대 50개만 로드
       sorts: [
         {
           timestamp: 'created_time',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/legacy/image'
 import styles from './GalleryGrid.module.css'
@@ -31,8 +31,10 @@ function GalleryItem({ item }: GalleryItemProps) {
   const [aspectRatio, setAspectRatio] = useState<number | null>(null)
   const [gridSize, setGridSize] = useState<string>('medium')
   const [actualWidth, setActualWidth] = useState<number | null>(null)
+  const [isIntersecting, setIsIntersecting] = useState(false)
   const videoRef = React.useRef<HTMLVideoElement>(null)
   const imageContainerRef = React.useRef<HTMLDivElement>(null)
+  const observerRef = React.useRef<HTMLDivElement>(null)
   
   // 비율에 따른 그리드 크기 계산
   const calculateGridSize = (ratio: number) => {
@@ -43,8 +45,27 @@ function GalleryItem({ item }: GalleryItemProps) {
     return 'small'                      // 매우 세로로 긴 이미지
   }
 
+  // Intersection Observer로 뷰포트 진입 감지
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsIntersecting(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '200px' } // 200px 전에 미리 로드
+    )
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   // 적절한 텍스트 너비 계산 (최소/최대 제한 적용)
-  const calculateOptimalTextWidth = (containerWidth: number, containerHeight: number, mediaRatio: number) => {
+  const calculateOptimalTextWidth = useCallback((containerWidth: number, containerHeight: number, mediaRatio: number) => {
     // 컨테이너가 미디어 비율에 맞춰 조정되므로 항상 컨테이너 너비 사용
     const actualDisplayWidth = containerWidth
     
@@ -57,7 +78,7 @@ function GalleryItem({ item }: GalleryItemProps) {
     if (actualDisplayWidth < 200) return 180
     if (actualDisplayWidth < 250) return 220
     return 260
-  }
+  }, [])
 
   // 이미지 로딩 완료 시 비율 계산 및 적절한 너비 측정
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -131,57 +152,59 @@ function GalleryItem({ item }: GalleryItemProps) {
         ref={imageContainerRef}
         className={styles.imageContainer}
       >
-        {item.imageUrl && !imageError ? (
-          item.mediaType === 'video' ? (
-            <>
-              <video
-                ref={videoRef}
-                className={styles.video}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                poster=""
-                onError={(e) => {
-                  console.log('Video load error:', item.imageUrl, e)
+        <div ref={observerRef} style={{ position: 'absolute', top: 0, left: 0, width: '1px', height: '1px' }}></div>
+          {item.imageUrl && !imageError && isIntersecting ? (
+            item.mediaType === 'video' ? (
+              <>
+                <video
+                  ref={videoRef}
+                  className={styles.video}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster=""
+                  onError={(e) => {
+                    console.log('Video load error:', item.imageUrl, e)
+                    setImageError(true)
+                  }}
+                  onLoadedData={() => {
+                    console.log('Video loaded successfully:', item.title)
+                    handleVideoLoad()
+                  }}
+                  onCanPlay={() => {
+                    console.log('Video can play:', item.title)
+                  }}
+                >
+                  <source src={item.imageUrl} />
+                  브라우저가 비디오를 지원하지 않습니다.
+                </video>
+                <div className={styles.playIcon}>▶</div>
+              </>
+            ) : (
+              <Image
+                src={item.imageUrl}
+                alt={item.title || ''}
+                layout="fill"
+                objectFit="contain"
+                className={styles.image}
+                sizes="(max-width: 768px) 25vw, 10vw"
+                priority={false}
+                loading="lazy"
+                onLoad={handleImageLoad}
+                onError={() => {
+                  console.log('Image load error:', item.imageUrl)
                   setImageError(true)
                 }}
-                onLoadedData={() => {
-                  console.log('Video loaded successfully:', item.title)
-                  handleVideoLoad()
-                }}
-                onCanPlay={() => {
-                  console.log('Video can play:', item.title)
-                }}
-              >
-                <source src={item.imageUrl} />
-                브라우저가 비디오를 지원하지 않습니다.
-              </video>
-              <div className={styles.playIcon}>▶</div>
-            </>
+              />
+            )
           ) : (
-            <Image
-              src={item.imageUrl}
-              alt={item.title || ''}
-              layout="fill"
-              objectFit="contain"
-              className={styles.image}
-              sizes="(max-width: 768px) 25vw, 10vw"
-              priority={false}
-              onLoad={handleImageLoad}
-              onError={() => {
-                console.log('Image load error:', item.imageUrl)
-                setImageError(true)
-              }}
-            />
-          )
-        ) : (
-          <div className={styles.placeholder}>
-            <span>{item.title?.charAt(0) || '?'}</span>
-          </div>
-        )}
-      </div>
+            <div className={styles.placeholder}>
+              <span>{item.title?.charAt(0) || '?'}</span>
+            </div>
+          )}
+        </div>
       <div 
         className={styles.caption}
         style={{ 
@@ -234,10 +257,14 @@ export function NotionApiGallery({ databaseId }: NotionApiGalleryProps) {
 
   if (loading) {
     return (
-      <div className={styles.galleryGrid}>
-        <div className={styles.loadingState}>
-          <p>Loading gallery...</p>
-        </div>
+      <div className={styles.skeletonGrid}>
+        {Array.from({ length: 12 }).map((_, index) => (
+          <div key={index} className={styles.skeletonItem}>
+            <div className={styles.skeletonImage}></div>
+            <div className={`${styles.skeletonText} ${styles.skeletonTitle}`}></div>
+            <div className={`${styles.skeletonText} ${styles.skeletonDate}`}></div>
+          </div>
+        ))}
       </div>
     )
   }

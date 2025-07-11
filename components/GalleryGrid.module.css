@@ -6,7 +6,7 @@
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  align-items: start;
+  align-items: end;
 }
 
 .galleryItem {
@@ -287,6 +287,71 @@
   50% {
     opacity: 0.5;
   }
+}
+
+/* 스켈레톤 로딩 상태 */
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1.5rem;
+  padding: 5.8rem 2rem 2.9rem;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  align-items: end;
+}
+
+.skeletonItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 120px;
+}
+
+.skeletonImage {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 2px;
+  margin-bottom: 0.75rem;
+}
+
+.skeletonText {
+  height: 0.8rem;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 2px;
+  margin-bottom: 0.25rem;
+}
+
+.skeletonTitle {
+  width: 80%;
+}
+
+.skeletonDate {
+  width: 60%;
+  height: 0.7rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.dark-mode .skeletonImage,
+.dark-mode .skeletonText {
+  background: linear-gradient(90deg, #1a1a1a 25%, #333333 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
 
 .errorState {
