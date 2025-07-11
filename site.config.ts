@@ -9,12 +9,12 @@ export default siteConfig({
   rootNotionSpaceId: null,
 
   // basic site info (required)
-  name: 'JHWANSO',
+  name: 'NotionDB to Your Site',
   domain: 'jhwanso.com',
-  author: 'JHWANSO',
+  author: 'NotionDB to Your Site',
 
   // open graph metadata (optional)
-  description: 'Example Next.js Notion Starter Kit Site',
+  description: 'NotionDB to Your Site',
 
   // social usernames (optional)
   // twitter: 'transitive_bs',

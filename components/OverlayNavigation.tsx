@@ -41,7 +41,7 @@ export function OverlayNavigation({ site }: OverlayNavigationProps) {
       <nav className={styles.nav}>
         <div className={styles.navContent}>
           <Link href="/" className={styles.logo}>
-            {site?.name || 'JHWANSO'}
+            {site?.name || 'NotionDB to Your Site'}
           </Link>
           
           <div className={styles.navControls}>
