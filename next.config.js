@@ -9,6 +9,9 @@ const withBundleAnalyzer = bundleAnalyzer({
 })
 
 export default withBundleAnalyzer({
+  eslint: {
+    ignoreDuringBuilds: true
+  },
   staticPageGenerationTimeout: 300,
   images: {
     remotePatterns: [

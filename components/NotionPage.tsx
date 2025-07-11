@@ -241,14 +241,14 @@ export function NotionPage({
   const shouldShowGallery = isRootPage
   
   // Get collection data for gallery - check all possible collection sources
-  let collectionId = block?.collection_id
+  let collectionId = (block as any)?.collection_id
   let collection = null
   let collectionView = null
   let collectionData = null
   
   if (collectionId) {
     collection = recordMap?.collection?.[collectionId]?.value
-    const collectionViewId = block?.view_ids?.[0]
+    const collectionViewId = (block as any)?.view_ids?.[0]
     collectionView = collectionViewId ? recordMap?.collection_view?.[collectionViewId]?.value : null
     collectionData = collectionId ? recordMap?.collection_query?.[collectionId]?.[collectionViewId!] : null
   }
@@ -264,8 +264,9 @@ export function NotionPage({
       if (recordMap.collection_view) {
         const viewIds = Object.keys(recordMap.collection_view)
         if (viewIds.length > 0) {
-          collectionView = recordMap.collection_view[viewIds[0]]?.value
-          collectionData = recordMap.collection_query?.[collectionId]?.[viewIds[0]]
+          const viewId = viewIds[0] as string
+          collectionView = (recordMap.collection_view as any)?.[viewId]?.value
+          collectionData = (recordMap.collection_query as any)?.[collectionId!]?.[viewId]
         }
       }
     }

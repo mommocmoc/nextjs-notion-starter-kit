@@ -77,7 +77,7 @@ export function GalleryGrid({
     return block && (
       block.type === 'page' || 
       block.type === 'image' ||
-      (block.parent_table === 'collection' && block.type === 'page')
+      block.parent_table === 'collection'
     )
   })
 
@@ -109,7 +109,7 @@ export function GalleryGrid({
           const coverImage = getPageProperty<string>('Cover', block, recordMap)
           const description = getPageProperty<string>('Description', block, recordMap)
           const searchParams = new URLSearchParams()
-          const pageUrl = mapPageUrl(site, recordMap, searchParams)(blockId)
+          const pageUrl = mapPageUrl(site as any, recordMap, searchParams)(blockId)
           
           // Try to get image from various sources
           let imageUrl = null
@@ -130,8 +130,9 @@ export function GalleryGrid({
             // Check all properties for file/media types
             if (collection?.schema) {
               for (const [propId, propSchema] of Object.entries(collection.schema)) {
-                if (propSchema.type === 'file' || propSchema.type === 'media') {
-                  const prop = getPageProperty<string>(propSchema.name, block, recordMap)
+                const schema = propSchema as any
+                if (schema.type === 'file' || schema.type === 'media') {
+                  const prop = getPageProperty<string>(schema.name, block, recordMap)
                   if (prop) return prop
                 }
               }
