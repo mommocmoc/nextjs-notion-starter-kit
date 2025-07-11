@@ -28,15 +28,19 @@ function GalleryItem({ item }: GalleryItemProps) {
   const [isHovered, setIsHovered] = useState(false)
   const videoRef = React.useRef<HTMLVideoElement>(null)
   
-  // 호버시 비디오 재생/정지
+  // 비디오 자동 재생 (소리 없이)
   React.useEffect(() => {
     if (videoRef.current && item.mediaType === 'video') {
-      if (isHovered) {
-        videoRef.current.play().catch(console.error)
-      } else {
-        videoRef.current.pause()
-        videoRef.current.currentTime = 0
-      }
+      // autoPlay 속성이 있지만 추가로 확실히 재생
+      videoRef.current.play().catch(console.error)
+    }
+  }, [item.mediaType])
+
+  // 호버시 처음부터 재생
+  React.useEffect(() => {
+    if (videoRef.current && item.mediaType === 'video' && isHovered) {
+      videoRef.current.currentTime = 0
+      videoRef.current.play().catch(console.error)
     }
   }, [isHovered, item.mediaType])
   
@@ -54,6 +58,7 @@ function GalleryItem({ item }: GalleryItemProps) {
               <video
                 ref={videoRef}
                 className={styles.video}
+                autoPlay
                 muted
                 loop
                 playsInline

@@ -46,6 +46,36 @@
   display: none !important;
 }
 
+/* Hide thumbnail media in detail pages */
+.notion-page-cover,
+.notion-page-cover-wrapper,
+.notion-property-file,
+.notion-property-media,
+.notion-collection-property-file,
+.notion-collection-property-media,
+.notion-property[data-property="썸네일"],
+.notion-property[data-property="thumbnail"],
+.notion-property[data-property="Thumbnail"],
+.notion-property[data-property="Media"],
+.notion-property[data-property="미디어"],
+.notion-property[data-property="Cover"],
+.notion-property[data-property="커버"],
+.notion-property[data-property="Image"],
+.notion-property[data-property="이미지"] {
+  display: none !important;
+}
+
+/* Hide file properties in general */
+.notion-property .notion-property-file,
+.notion-property .notion-property-media,
+.notion-property[title*="썸네일"],
+.notion-property[title*="Thumbnail"],
+.notion-property[title*="Media"],
+.notion-property[title*="Cover"],
+.notion-property[title*="Image"] {
+  display: none !important;
+}
+
 .notion-frame {
   padding: 0;
 }
