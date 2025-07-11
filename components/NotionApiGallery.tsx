@@ -44,17 +44,27 @@ function GalleryItem({ item }: GalleryItemProps) {
   }
 
   // 적절한 텍스트 너비 계산 (최소/최대 제한 적용)
-  const calculateOptimalTextWidth = (containerWidth: number, imageRatio: number) => {
-    const actualImageWidth = Math.min(containerWidth, containerWidth * imageRatio)
+  const calculateOptimalTextWidth = (containerWidth: number, containerHeight: number, mediaRatio: number) => {
+    // object-fit: contain 기준으로 실제 표시되는 크기 계산
+    const containerRatio = containerWidth / containerHeight
+    
+    let actualDisplayWidth
+    if (mediaRatio > containerRatio) {
+      // 가로가 더 긴 경우: 컨테이너 너비에 맞춤
+      actualDisplayWidth = containerWidth
+    } else {
+      // 세로가 더 긴 경우: 컨테이너 높이에 맞춤
+      actualDisplayWidth = containerHeight * mediaRatio
+    }
     
     // 단계별 너비 조정 (레퍼런스 디자인 참고)
-    if (actualImageWidth < 120) return 120      // 최소 너비
-    if (actualImageWidth > 300) return 300     // 최대 너비
+    if (actualDisplayWidth < 120) return 120      // 최소 너비
+    if (actualDisplayWidth > 300) return 300     // 최대 너비
     
     // 단계별 조정 (너무 세밀하지 않게)
-    if (actualImageWidth < 150) return 140
-    if (actualImageWidth < 200) return 180
-    if (actualImageWidth < 250) return 220
+    if (actualDisplayWidth < 150) return 140
+    if (actualDisplayWidth < 200) return 180
+    if (actualDisplayWidth < 250) return 220
     return 260
   }
 
@@ -69,7 +79,7 @@ function GalleryItem({ item }: GalleryItemProps) {
     setTimeout(() => {
       if (imageContainerRef.current) {
         const containerRect = imageContainerRef.current.getBoundingClientRect()
-        const optimalWidth = calculateOptimalTextWidth(containerRect.width, ratio)
+        const optimalWidth = calculateOptimalTextWidth(containerRect.width, containerRect.height, ratio)
         setActualWidth(optimalWidth)
       }
     }, 100)
@@ -86,7 +96,7 @@ function GalleryItem({ item }: GalleryItemProps) {
       setTimeout(() => {
         if (imageContainerRef.current) {
           const containerRect = imageContainerRef.current.getBoundingClientRect()
-          const optimalWidth = calculateOptimalTextWidth(containerRect.width, ratio)
+          const optimalWidth = calculateOptimalTextWidth(containerRect.width, containerRect.height, ratio)
           setActualWidth(optimalWidth)
         }
       }, 100)
