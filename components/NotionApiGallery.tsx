@@ -43,36 +43,51 @@ function GalleryItem({ item }: GalleryItemProps) {
     return 'small'                      // 매우 세로로 긴 이미지
   }
 
-  // 이미지 로딩 완료 시 비율 계산 및 실제 너비 측정
+  // 적절한 텍스트 너비 계산 (최소/최대 제한 적용)
+  const calculateOptimalTextWidth = (containerWidth: number, imageRatio: number) => {
+    const actualImageWidth = Math.min(containerWidth, containerWidth * imageRatio)
+    
+    // 단계별 너비 조정 (레퍼런스 디자인 참고)
+    if (actualImageWidth < 120) return 120      // 최소 너비
+    if (actualImageWidth > 300) return 300     // 최대 너비
+    
+    // 단계별 조정 (너무 세밀하지 않게)
+    if (actualImageWidth < 150) return 140
+    if (actualImageWidth < 200) return 180
+    if (actualImageWidth < 250) return 220
+    return 260
+  }
+
+  // 이미지 로딩 완료 시 비율 계산 및 적절한 너비 측정
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget
     const ratio = img.naturalWidth / img.naturalHeight
     setAspectRatio(ratio)
     setGridSize(calculateGridSize(ratio))
     
-    // 실제 렌더링된 이미지 크기 측정
+    // 적절한 텍스트 너비 계산
     setTimeout(() => {
       if (imageContainerRef.current) {
         const containerRect = imageContainerRef.current.getBoundingClientRect()
-        const actualImageWidth = Math.min(containerRect.width, containerRect.height * ratio)
-        setActualWidth(actualImageWidth)
+        const optimalWidth = calculateOptimalTextWidth(containerRect.width, ratio)
+        setActualWidth(optimalWidth)
       }
     }, 100)
   }
 
-  // 비디오 로딩 완료 시 비율 계산 및 실제 너비 측정
+  // 비디오 로딩 완료 시 비율 계산 및 적절한 너비 측정
   const handleVideoLoad = () => {
     if (videoRef.current) {
       const ratio = videoRef.current.videoWidth / videoRef.current.videoHeight
       setAspectRatio(ratio)
       setGridSize(calculateGridSize(ratio))
       
-      // 실제 렌더링된 비디오 크기 측정
+      // 적절한 텍스트 너비 계산
       setTimeout(() => {
         if (imageContainerRef.current) {
           const containerRect = imageContainerRef.current.getBoundingClientRect()
-          const actualVideoWidth = Math.min(containerRect.width, containerRect.height * ratio)
-          setActualWidth(actualVideoWidth)
+          const optimalWidth = calculateOptimalTextWidth(containerRect.width, ratio)
+          setActualWidth(optimalWidth)
         }
       }, 100)
     }

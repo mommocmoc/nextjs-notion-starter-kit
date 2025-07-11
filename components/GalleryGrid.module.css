@@ -1,11 +1,12 @@
 .galleryGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1.5rem;
   padding: 5.8rem 2rem 2.9rem;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
+  align-items: start;
 }
 
 .galleryItem {
@@ -20,6 +21,7 @@
   justify-self: start;
   width: fit-content;
   max-width: 100%;
+  min-width: 120px;
 }
 
 .galleryItem:hover {
@@ -139,6 +141,7 @@
   box-sizing: border-box;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  min-width: 120px;
 }
 
 .title {
