@@ -13,6 +13,8 @@ interface NotionGalleryItem {
   createdTime: string
   lastEditedTime: string
   formattedDate: string
+  aspectRatio?: number // 가로/세로 비율 (width/height)
+  gridSize?: 'small' | 'medium' | 'large' | 'wide' | 'tall' // 그리드 크기
 }
 
 interface NotionApiGalleryProps {
@@ -26,7 +28,35 @@ interface GalleryItemProps {
 function GalleryItem({ item }: GalleryItemProps) {
   const [imageError, setImageError] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null)
+  const [gridSize, setGridSize] = useState<string>('medium')
   const videoRef = React.useRef<HTMLVideoElement>(null)
+  
+  // 비율에 따른 그리드 크기 계산
+  const calculateGridSize = (ratio: number) => {
+    if (ratio > 1.8) return 'wide'      // 매우 가로로 긴 이미지
+    if (ratio > 1.3) return 'large'     // 가로로 긴 이미지  
+    if (ratio > 0.8) return 'medium'    // 거의 정사각형
+    if (ratio > 0.6) return 'tall'      // 세로로 긴 이미지
+    return 'small'                      // 매우 세로로 긴 이미지
+  }
+
+  // 이미지 로딩 완료 시 비율 계산
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget
+    const ratio = img.naturalWidth / img.naturalHeight
+    setAspectRatio(ratio)
+    setGridSize(calculateGridSize(ratio))
+  }
+
+  // 비디오 로딩 완료 시 비율 계산
+  const handleVideoLoad = () => {
+    if (videoRef.current) {
+      const ratio = videoRef.current.videoWidth / videoRef.current.videoHeight
+      setAspectRatio(ratio)
+      setGridSize(calculateGridSize(ratio))
+    }
+  }
   
   // 비디오 자동 재생 (소리 없이)
   React.useEffect(() => {
@@ -47,7 +77,7 @@ function GalleryItem({ item }: GalleryItemProps) {
   return (
     <Link 
       href={item.url} 
-      className={styles.galleryItem}
+      className={`${styles.galleryItem} ${styles[gridSize]}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -70,6 +100,7 @@ function GalleryItem({ item }: GalleryItemProps) {
                 }}
                 onLoadedData={() => {
                   console.log('Video loaded successfully:', item.title)
+                  handleVideoLoad()
                 }}
                 onCanPlay={() => {
                   console.log('Video can play:', item.title)
@@ -89,6 +120,7 @@ function GalleryItem({ item }: GalleryItemProps) {
               className={styles.image}
               sizes="(max-width: 768px) 25vw, 10vw"
               priority={false}
+              onLoad={handleImageLoad}
               onError={() => {
                 console.log('Image load error:', item.imageUrl)
                 setImageError(true)
