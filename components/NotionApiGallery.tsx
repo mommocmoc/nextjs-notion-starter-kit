@@ -116,7 +116,7 @@ function GalleryItem({ item }: GalleryItemProps) {
               src={item.imageUrl}
               alt={item.title || ''}
               layout="fill"
-              objectFit="cover"
+              objectFit="contain"
               className={styles.image}
               sizes="(max-width: 768px) 25vw, 10vw"
               priority={false}
