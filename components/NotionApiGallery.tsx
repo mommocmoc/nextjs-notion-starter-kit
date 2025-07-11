@@ -44,17 +44,23 @@ function GalleryItem({ item }: GalleryItemProps) {
   }
 
   // 적절한 텍스트 너비 계산 (최소/최대 제한 적용)
-  const calculateOptimalTextWidth = (containerWidth: number, containerHeight: number, mediaRatio: number) => {
-    // object-fit: contain 기준으로 실제 표시되는 크기 계산
-    const containerRatio = containerWidth / containerHeight
-    
+  const calculateOptimalTextWidth = (containerWidth: number, containerHeight: number, mediaRatio: number, isVideo: boolean = false) => {
     let actualDisplayWidth
-    if (mediaRatio > containerRatio) {
-      // 가로가 더 긴 경우: 컨테이너 너비에 맞춤
+    
+    if (isVideo) {
+      // 비디오는 object-fit: cover로 컨테이너를 꽉 채움
       actualDisplayWidth = containerWidth
     } else {
-      // 세로가 더 긴 경우: 컨테이너 높이에 맞춤
-      actualDisplayWidth = containerHeight * mediaRatio
+      // 이미지는 object-fit: contain 기준으로 실제 표시되는 크기 계산
+      const containerRatio = containerWidth / containerHeight
+      
+      if (mediaRatio > containerRatio) {
+        // 가로가 더 긴 경우: 컨테이너 너비에 맞춤
+        actualDisplayWidth = containerWidth
+      } else {
+        // 세로가 더 긴 경우: 컨테이너 높이에 맞춤
+        actualDisplayWidth = containerHeight * mediaRatio
+      }
     }
     
     // 단계별 너비 조정 (레퍼런스 디자인 참고)
@@ -92,11 +98,11 @@ function GalleryItem({ item }: GalleryItemProps) {
       setAspectRatio(ratio)
       setGridSize(calculateGridSize(ratio))
       
-      // 적절한 텍스트 너비 계산
+      // 적절한 텍스트 너비 계산 (비디오는 컨테이너 폭에 맞춤)
       setTimeout(() => {
         if (imageContainerRef.current) {
           const containerRect = imageContainerRef.current.getBoundingClientRect()
-          const optimalWidth = calculateOptimalTextWidth(containerRect.width, containerRect.height, ratio)
+          const optimalWidth = calculateOptimalTextWidth(containerRect.width, containerRect.height, ratio, true)
           setActualWidth(optimalWidth)
         }
       }, 100)
