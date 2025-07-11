@@ -42,6 +42,7 @@
     "ky": "^1.8.1",
     "lqip-modern": "^2.2.1",
     "next": "^15.3.3",
+    "next-seo": "^6.8.0",
     "notion-client": "^7.4.2",
     "notion-types": "^7.4.2",
     "notion-utils": "^7.4.2",

@@ -19,22 +19,58 @@ export default async function handler(
   try {
     // 환경변수를 우선으로 사용, 없으면 쿼리 파라미터 사용
     const databaseId = process.env.NOTION_DATABASE_ID || req.query.databaseId
+    const category = req.query.category as string
 
     if (!databaseId) {
       return res.status(400).json({ message: 'Database ID is required. Set NOTION_DATABASE_ID environment variable or provide databaseId query parameter.' })
     }
 
+    // 카테고리 필터링 조건 구성
+    const filterConditions: any = []
+    
+    if (category) {
+      // 카테고리가 UUID 형태인지 확인 (navigation API에서 넘어온 ID)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(category)
+      
+      if (isUUID) {
+        // UUID인 경우 직접 사용
+        filterConditions.push({
+          property: '페이지 카테고리',
+          relation: {
+            contains: category
+          }
+        })
+      } else {
+        // 문자열인 경우, 먼저 네비게이션 DB에서 해당 카테고리의 ID를 찾아야 함
+        // 임시로 필터링 건너뛰기 (모든 데이터 반환)
+        console.log('Category is not UUID, skipping filter:', category)
+      }
+    }
+
     // Notion API를 사용해서 데이터베이스 쿼리 (페이지 크기 제한으로 성능 향상)
-    const response = await notion.databases.query({
+    const queryOptions: any = {
       database_id: databaseId as string,
       page_size: 50, // 한 번에 최대 50개만 로드
       sorts: [
+        {
+          property: '노출 순서',
+          direction: 'ascending'
+        },
         {
           timestamp: 'created_time',
           direction: 'descending'
         }
       ]
-    })
+    }
+
+    // 필터 조건이 있으면 추가
+    if (filterConditions.length > 0) {
+      queryOptions.filter = filterConditions.length === 1 
+        ? filterConditions[0] 
+        : { and: filterConditions }
+    }
+
+    const response = await notion.databases.query(queryOptions)
 
     // 갤러리 아이템 데이터 변환
     const galleryItems = response.results.map((page: any) => {
@@ -98,6 +134,12 @@ export default async function handler(
         description = properties.Description.rich_text.map((t: any) => t.plain_text).join('')
       }
 
+      // 노출 순서 추출
+      let displayOrder = null
+      if (properties['노출 순서']?.number !== undefined) {
+        displayOrder = properties['노출 순서'].number
+      }
+
       return {
         id: page.id,
         title,
@@ -107,6 +149,7 @@ export default async function handler(
         url: `/${page.id.replace(/-/g, '')}`, // Notion 페이지 URL 형식
         createdTime: page.created_time,
         lastEditedTime: page.last_edited_time,
+        displayOrder, // 노출 순서 추가
         // 수정일을 읽기 쉬운 형태로 포맷팅
         formattedDate: new Date(page.last_edited_time).toLocaleDateString('ko-KR', {
           year: 'numeric',

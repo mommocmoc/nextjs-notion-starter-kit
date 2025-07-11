@@ -1,22 +1,40 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useDarkMode } from '@/lib/use-dark-mode'
+import { NavigationItem } from '../pages/api/navigation'
 import styles from './OverlayNavigation.module.css'
 
 interface OverlayNavigationProps {
-  site: any
+  site?: any
 }
 
 export function OverlayNavigation({ site }: OverlayNavigationProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [navigationItems, setNavigationItems] = useState<NavigationItem[]>([])
+  const [loading, setLoading] = useState(true)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
 
-  const navigationItems = [
-    { title: 'Home', href: '/' },
-    { title: 'About', href: '/about' },
-    { title: 'Works', href: '/works' },
-    { title: 'Contact', href: '/contact' }
-  ]
+  useEffect(() => {
+    const fetchNavigation = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/navigation')
+        const data = await response.json()
+
+        if (data.success) {
+          setNavigationItems(data.items)
+        } else {
+          console.error('Failed to load navigation:', data.message)
+        }
+      } catch (err) {
+        console.error('Failed to fetch navigation:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchNavigation()
+  }, [])
 
   return (
     <>
@@ -42,16 +60,20 @@ export function OverlayNavigation({ site }: OverlayNavigationProps) {
         <div className={styles.overlay}>
           <div className={styles.overlayContent}>
             <div className={styles.menuItems}>
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={styles.menuItem}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.title}
-                </Link>
-              ))}
+              {loading ? (
+                <div className={styles.menuItem}>Loading...</div>
+              ) : (
+                navigationItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.urlPath}
+                    className={styles.menuItem}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.displayName}
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </div>

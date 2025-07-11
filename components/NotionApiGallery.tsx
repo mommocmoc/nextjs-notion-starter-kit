@@ -19,6 +19,7 @@ interface NotionGalleryItem {
 
 interface NotionApiGalleryProps {
   databaseId?: string
+  categoryFilter?: string
 }
 
 interface GalleryItemProps {
@@ -222,7 +223,7 @@ function GalleryItem({ item }: GalleryItemProps) {
   )
 }
 
-export function NotionApiGallery({ databaseId }: NotionApiGalleryProps) {
+export function NotionApiGallery({ databaseId, categoryFilter }: NotionApiGalleryProps) {
   const [items, setItems] = useState<NotionGalleryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -231,10 +232,18 @@ export function NotionApiGallery({ databaseId }: NotionApiGalleryProps) {
     const fetchGalleryData = async () => {
       try {
         setLoading(true)
-        // databaseId가 있으면 쿼리 파라미터로 전달, 없으면 환경변수 사용
-        const url = databaseId 
-          ? `/api/notion-gallery?databaseId=${databaseId.replace(/-/g, '')}` 
-          : '/api/notion-gallery'
+        // URL 구성
+        const params = new URLSearchParams()
+        
+        if (databaseId) {
+          params.append('databaseId', databaseId.replace(/-/g, ''))
+        }
+        
+        if (categoryFilter) {
+          params.append('category', categoryFilter)
+        }
+        
+        const url = `/api/notion-gallery${params.toString() ? '?' + params.toString() : ''}`
         
         const response = await fetch(url)
         const data = await response.json() as any
@@ -253,7 +262,7 @@ export function NotionApiGallery({ databaseId }: NotionApiGalleryProps) {
     }
 
     fetchGalleryData()
-  }, [databaseId])
+  }, [databaseId, categoryFilter])
 
   if (loading) {
     return (
