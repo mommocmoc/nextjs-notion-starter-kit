@@ -1,14 +1,22 @@
-import { GetServerSideProps } from 'next'
+import type { GetServerSideProps } from 'next'
 import { NextSeo } from 'next-seo'
 import { NotionPage } from '@/components/NotionPage'
 import { NotionApiGallery } from '@/components/NotionApiGallery'
 import { OverlayNavigation } from '@/components/OverlayNavigation'
 import { SinglePageView } from '@/components/SinglePageView'
-import { NavigationItem } from './api/navigation'
+import type { NavigationItem } from './api/navigation'
 import { domain, isDev } from '@/lib/config'
 import { getSiteMap } from '@/lib/get-site-map'
 import { resolveNotionPage } from '@/lib/resolve-notion-page'
 import { type PageProps, type Params } from '@/lib/types'
+
+interface DynamicPageProps {
+  pageType: 'notion' | 'category'
+  notionProps?: PageProps
+  category?: NavigationItem
+  notionPageId?: string
+  siteConfig?: any
+}
 
 // Single Page 타입에서 여러 페이지 중 우선순위에 따라 선택하는 함수
 function selectSinglePageByPriority(items: any[]): any {
@@ -59,13 +67,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     // 먼저 네비게이션 데이터 조회하여 카테고리인지 확인
     const navigationResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/navigation`)
-    const navigationData = await navigationResponse.json()
+    const navigationData = await navigationResponse.json() as {
+      success: boolean
+      items?: NavigationItem[]
+      message?: string
+    }
     
     console.log('Navigation data:', navigationData)
     
     let category = null
     
-    if (navigationData.success) {
+    if (navigationData.success && navigationData.items) {
       // URL 경로로 카테고리 찾기
       category = navigationData.items.find((item: NavigationItem) => 
         item.urlPath === `/${pageId}` || item.categoryName.toLowerCase() === pageId
@@ -88,9 +100,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         const contentResponse = await fetch(
           `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/notion-gallery?category=${category.id}`
         )
-        const contentData = await contentResponse.json()
+        const contentData = await contentResponse.json() as {
+          success: boolean
+          items?: any[]
+        }
         
-        if (contentData.success && contentData.items.length > 0) {
+        if (contentData.success && contentData.items && contentData.items.length > 0) {
           // 페이지 우선순위에 따라 선택
           const selectedPage = selectSinglePageByPriority(contentData.items)
           notionPageId = selectedPage.id
@@ -143,7 +158,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 }
 
-export default function DynamicPage({ pageType, notionProps, category, notionPageId, notionPageIds, siteConfig }: DynamicPageProps) {
+export default function DynamicPage({ pageType, notionProps, category, notionPageId, siteConfig }: DynamicPageProps) {
   // 기존 노션 페이지 렌더링
   if (pageType === 'notion' && notionProps) {
     return <NotionPage {...notionProps} />

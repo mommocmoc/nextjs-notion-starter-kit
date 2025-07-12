@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { NotionRenderer } from 'react-notion-x'
-import { ExtendedRecordMap } from 'notion-types'
+import type { ExtendedRecordMap } from 'notion-types'
 import styles from './SinglePageView.module.css'
 
 // Empty components to avoid react-notion-x warnings
@@ -27,9 +27,13 @@ export function SinglePageView({ pageId, title }: SinglePageViewProps) {
         }
 
         const response = await fetch(`/api/notion-page?pageId=${pageId}`)
-        const data = await response.json()
+        const data = await response.json() as {
+          success: boolean
+          recordMap?: ExtendedRecordMap
+          message?: string
+        }
         
-        if (data.success) {
+        if (data.success && data.recordMap) {
           setRecordMap(data.recordMap)
         } else {
           console.error(`Failed to fetch page ${pageId}:`, data.message)
@@ -91,8 +95,8 @@ export function SinglePageView({ pageId, title }: SinglePageViewProps) {
           showCollectionViewDropdown={false}
           showTableOfContents={false}
           minTableOfContentsItems={99}
-          defaultPageIcon={null}
-          defaultPageCover={null}
+          defaultPageIcon={undefined}
+          defaultPageCover={undefined}
           defaultPageCoverPosition={0.5}
           className={styles.notionRenderer}
           components={{
@@ -101,8 +105,7 @@ export function SinglePageView({ pageId, title }: SinglePageViewProps) {
             Modal: EmptyComponent,
             Pdf: EmptyComponent,
             Tweet: EmptyComponent,
-            Header: EmptyComponent,
-            Footer: EmptyComponent
+            Header: EmptyComponent
           }}
         />
       </div>

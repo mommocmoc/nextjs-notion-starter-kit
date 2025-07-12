@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { GetServerSideProps } from 'next'
+import type { GetServerSideProps } from 'next'
 import { NextSeo } from 'next-seo'
 import { NotionPage } from '@/components/NotionPage'
 import { NotionApiGallery } from '@/components/NotionApiGallery'
 import { OverlayNavigation } from '@/components/OverlayNavigation'
 import { SinglePageView } from '@/components/SinglePageView'
-import { NavigationItem } from './api/navigation'
+import type { NavigationItem } from './api/navigation'
 import { domain } from '@/lib/config'
 
 // Single Page 타입에서 여러 페이지 중 우선순위에 따라 선택하는 함수
@@ -81,12 +81,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     // 네비게이션 데이터 조회
     const navigationResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/navigation`)
-    const navigationData = await navigationResponse.json()
+    const navigationData = await navigationResponse.json() as {
+      success: boolean
+      items?: NavigationItem[]
+    }
     
     let homeCategory = null
     let notionPageId = null
     
-    if (navigationData.success) {
+    if (navigationData.success && navigationData.items) {
       // Home 카테고리 찾기
       homeCategory = navigationData.items.find((item: NavigationItem) => 
         item.categoryName === 'Home' || item.urlPath === '/'
@@ -102,9 +105,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         const contentResponse = await fetch(
           `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/notion-gallery?category=${homeCategory.id}`
         )
-        const contentData = await contentResponse.json()
+        const contentData = await contentResponse.json() as {
+          success: boolean
+          items?: any[]
+        }
         
-        if (contentData.success && contentData.items.length > 0) {
+        if (contentData.success && contentData.items && contentData.items.length > 0) {
           // 페이지 우선순위에 따라 선택
           const selectedPage = selectSinglePageByPriority(contentData.items)
           notionPageId = selectedPage.id

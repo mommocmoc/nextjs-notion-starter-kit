@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { NavigationItem } from '../pages/api/navigation'
+import type { NavigationItem } from '../pages/api/navigation'
 import styles from './OverlayNavigation.module.css'
 
 interface DynamicNavigationProps {
@@ -17,10 +17,14 @@ export function DynamicNavigation({ className }: DynamicNavigationProps) {
       try {
         setLoading(true)
         const response = await fetch('/api/navigation')
-        const data = await response.json()
+        const data = await response.json() as {
+          success: boolean
+          items?: NavigationItem[]
+          message?: string
+        }
 
         if (data.success) {
-          setNavigationItems(data.items)
+          setNavigationItems(data.items || [])
         } else {
           setError(data.message || 'Failed to load navigation')
         }

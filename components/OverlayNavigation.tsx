@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useDarkMode } from '@/lib/use-dark-mode'
-import { NavigationItem } from '../pages/api/navigation'
+import type { NavigationItem } from '../pages/api/navigation'
 import styles from './OverlayNavigation.module.css'
 
 interface OverlayNavigationProps {
@@ -19,10 +19,14 @@ export function OverlayNavigation({ site }: OverlayNavigationProps) {
       try {
         setLoading(true)
         const response = await fetch('/api/navigation')
-        const data = await response.json()
+        const data = await response.json() as {
+          success: boolean
+          items?: NavigationItem[]
+          message?: string
+        }
 
         if (data.success) {
-          setNavigationItems(data.items)
+          setNavigationItems(data.items || [])
         } else {
           console.error('Failed to load navigation:', data.message)
         }
