@@ -56,6 +56,8 @@ interface DynamicPageProps {
   category?: NavigationItem
   notionPageId?: string
   siteConfig?: any
+  // 현재 페이지 ID 추가
+  pageId?: string
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -164,6 +166,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           pageType: 'category',
           category,
           notionPageId,
+          pageId: pageId as string,
           siteConfig: {
             domain: process.env.NEXT_PUBLIC_DOMAIN || 'localhost:3000',
             isSearchEnabled: false,
@@ -190,7 +193,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         pageType: 'notion',
-        notionProps
+        notionProps,
+        pageId: pageId as string
       },
     }
   } catch (err) {
@@ -205,7 +209,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 }
 
-export default function DynamicPage({ pageType, notionProps, category, notionPageId, siteConfig }: DynamicPageProps) {
+export default function DynamicPage({ pageType, notionProps, category, notionPageId, siteConfig, pageId }: DynamicPageProps) {
   // 기존 노션 페이지 렌더링 - SinglePageView 스타일 적용
   if (pageType === 'notion' && notionProps) {
     const pageTitle = notionProps.recordMap?.block ? 
@@ -228,7 +232,7 @@ export default function DynamicPage({ pageType, notionProps, category, notionPag
           <OverlayNavigation />
           
           <SinglePageView 
-            pageId={pageId as string}
+            pageId={pageId || ''}
             title={pageTitle}
             customNotionProps={notionProps}
           />
