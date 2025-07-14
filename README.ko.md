@@ -79,6 +79,18 @@ export default siteConfig({
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone)
 
+#### 중요: Vercel Authentication 해제
+
+Vercel에 배포한 후, 공개 접근을 위해 Vercel Authentication을 해제해야 합니다:
+
+1. Vercel 프로젝트 대시보드로 이동
+2. **Settings** → **Deployment Protection**으로 이동
+3. **Vercel Authentication** 섹션 찾기
+4. **Disabled**로 설정
+5. **Save** 클릭
+
+> ⚠️ **참고**: 이 단계를 건너뛰면 배포된 사이트에 접근하기 위해 Vercel 팀 인증이 필요하여 일반 방문자가 접근할 수 없게 됩니다.
+
 ## 📖 작동 원리
 
 ### 표시 유형
