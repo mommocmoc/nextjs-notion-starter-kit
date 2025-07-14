@@ -15,8 +15,12 @@ export default async function handler(
 
   // API 응답 캐싱 설정 (1분으로 단축, 개발 시에는 캐싱 비활성화)
   const isDev = process.env.NODE_ENV === 'development'
-  if (isDev) {
+  const forceRefresh = req.query.force === 'true'
+  
+  if (isDev || forceRefresh) {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+    res.setHeader('Pragma', 'no-cache')
+    res.setHeader('Expires', '0')
   } else {
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120')
   }
@@ -25,6 +29,11 @@ export default async function handler(
     // 환경변수를 우선으로 사용, 없으면 쿼리 파라미터 사용
     const databaseId = process.env.NOTION_DATABASE_ID || req.query.databaseId
     const category = req.query.category as string
+
+    console.log('=== Notion Gallery API Debug ===')
+    console.log('NODE_ENV:', process.env.NODE_ENV)
+    console.log('NOTION_DATABASE_ID:', databaseId ? 'Set' : 'Not set')
+    console.log('Category filter:', category)
 
     if (!databaseId) {
       return res.status(400).json({ message: 'Database ID is required. Set NOTION_DATABASE_ID environment variable or provide databaseId query parameter.' })

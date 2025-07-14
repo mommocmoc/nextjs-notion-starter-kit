@@ -18,17 +18,26 @@ export function AdminTools({ className }: AdminToolsProps) {
       const timestamp = new Date().getTime()
       
       // Force refresh navigation data
-      await fetch(`/api/navigation?t=${timestamp}&force=true`)
-      await fetch(`/api/notion-gallery?t=${timestamp}&force=true`)
+      const navResponse = await fetch(`/api/navigation?t=${timestamp}&force=true`)
+      const navData = await navResponse.json()
+      console.log('Navigation refresh:', navData)
       
-      // Refresh the current page
-      window.location.reload()
+      // Force refresh gallery data
+      const galleryResponse = await fetch(`/api/notion-gallery?t=${timestamp}&force=true`)
+      const galleryData = await galleryResponse.json()
+      console.log('Gallery refresh:', galleryData)
       
-      setMessage('✅ Cache cleared successfully!')
+      // Show success message before reload
+      setMessage('✅ Cache cleared! Reloading page...')
+      
+      // Delay reload to show message
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
+      
     } catch (error) {
       setMessage('❌ Failed to clear cache')
       console.error('Cache refresh error:', error)
-    } finally {
       setIsRefreshing(false)
     }
   }
