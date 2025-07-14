@@ -16,8 +16,13 @@ export default async function handler(
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
-  // API 응답 캐싱 설정 (10분)
-  res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=1200')
+  // API 응답 캐싱 설정 (개발 시에는 캐싱 비활성화, 프로덕션에서는 5분)
+  const isDev = process.env.NODE_ENV === 'development'
+  if (isDev) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+  } else {
+    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+  }
 
   try {
     const { pageId } = req.query

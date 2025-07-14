@@ -80,7 +80,9 @@ export default function HomePage({ homeCategory, notionPageId, siteConfig }: Hom
 export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     // 네비게이션 데이터 조회
-    const navigationResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/navigation`)
+    // 캐시 무효화를 위한 타임스탬프 추가
+    const timestamp = new Date().getTime()
+    const navigationResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/navigation?t=${timestamp}`)
     const navigationData = await navigationResponse.json() as {
       success: boolean
       items?: NavigationItem[]
@@ -103,7 +105,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       // Single Page 타입인 경우 노션 페이지 ID 조회
       if (homeCategory?.displayType === 'Single Page') {
         const contentResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/notion-gallery?category=${homeCategory.id}`
+          `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/notion-gallery?category=${homeCategory.id}&t=${timestamp}`
         )
         const contentData = await contentResponse.json() as {
           success: boolean

@@ -16,7 +16,9 @@ export function DynamicNavigation({ className }: DynamicNavigationProps) {
     const fetchNavigation = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/navigation')
+        // 캐시 무효화를 위한 타임스탬프 추가
+        const timestamp = new Date().getTime()
+        const response = await fetch(`/api/navigation?t=${timestamp}`)
         const data = await response.json() as {
           success: boolean
           items?: NavigationItem[]
