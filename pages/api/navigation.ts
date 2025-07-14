@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { Client } from '@notionhq/client'
 
 const notion = new Client({
-  auth: process.env.NOTION_API_KEY,
+  auth: process.env.NOTION_TOKEN || process.env.NOTION_API_KEY,
 })
 
 export interface NavigationItem {
@@ -41,6 +41,7 @@ export default async function handler(
     console.log('=== Navigation API Debug ===')
     console.log('NODE_ENV:', process.env.NODE_ENV)
     console.log('NOTION_NAVIGATION_DB_ID:', navigationDbId ? 'Set' : 'Not set')
+    console.log('NOTION_TOKEN:', process.env.NOTION_TOKEN ? 'Set' : 'Not set')
     console.log('NOTION_API_KEY:', process.env.NOTION_API_KEY ? 'Set' : 'Not set')
 
     if (!navigationDbId) {

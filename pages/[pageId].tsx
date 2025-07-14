@@ -73,7 +73,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const baseUrl = `${protocol}://${host}`
     
     const timestamp = new Date().getTime()
+    console.log('=== DYNAMIC PAGE getServerSideProps ===')
+    console.log('baseUrl:', baseUrl)
+    console.log('pageId:', pageId)
+    console.log('Fetching navigation data...')
+    
     const navigationResponse = await fetch(`${baseUrl}/api/navigation?t=${timestamp}`)
+    console.log('Navigation response status:', navigationResponse.status)
+    
     const navigationData = await navigationResponse.json() as {
       success: boolean
       items?: NavigationItem[]
@@ -85,10 +92,19 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     let category = null
     
     if (navigationData.success && navigationData.items) {
+      console.log('Available navigation items:', navigationData.items.map(item => ({
+        categoryName: item.categoryName,
+        displayName: item.displayName,
+        displayType: item.displayType,
+        urlPath: item.urlPath
+      })))
+      
       // URL 경로로 카테고리 찾기
       category = navigationData.items.find((item: NavigationItem) => 
         item.urlPath === `/${pageId}` || item.categoryName.toLowerCase() === pageId
       )
+      
+      console.log('Found category for pageId:', pageId, ':', category)
     } else {
       console.error('Navigation API failed:', navigationData)
       // API 실패 시 기본 동작: 갤러리 모드로 처리
@@ -101,6 +117,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         isActive: true,
         urlPath: `/${pageId}`
       }
+      console.log('Using fallback category:', category)
     }
     
     if (navigationData.success && navigationData.items) {

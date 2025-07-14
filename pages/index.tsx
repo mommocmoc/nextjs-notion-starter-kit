@@ -86,24 +86,42 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const baseUrl = `${protocol}://${host}`
     
     const timestamp = new Date().getTime()
+    console.log('=== HOME PAGE getServerSideProps ===')
+    console.log('baseUrl:', baseUrl)
+    console.log('Fetching navigation data...')
+    
     const navigationResponse = await fetch(`${baseUrl}/api/navigation?t=${timestamp}`)
+    console.log('Navigation response status:', navigationResponse.status)
+    
     const navigationData = await navigationResponse.json() as {
       success: boolean
       items?: NavigationItem[]
     }
     
+    console.log('Navigation data:', navigationData)
+    
     let homeCategory = null
     let notionPageId = null
     
     if (navigationData.success && navigationData.items) {
+      console.log('Available navigation items:', navigationData.items.map(item => ({
+        categoryName: item.categoryName,
+        displayName: item.displayName,
+        displayType: item.displayType,
+        urlPath: item.urlPath
+      })))
+      
       // Home 카테고리 찾기
       homeCategory = navigationData.items.find((item: NavigationItem) => 
         item.categoryName === 'Home' || item.urlPath === '/'
       )
       
+      console.log('Found home category:', homeCategory)
+      
       // Home 카테고리가 없으면 첫 번째 항목 사용
       if (!homeCategory && navigationData.items.length > 0) {
         homeCategory = navigationData.items[0]
+        console.log('Using first item as home category:', homeCategory)
       }
     } else {
       console.error('Navigation API failed:', navigationData)
@@ -117,23 +135,34 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         isActive: true,
         urlPath: '/'
       }
+      console.log('Using fallback home category:', homeCategory)
     }
       
     // Single Page 타입인 경우 노션 페이지 ID 조회
       if (homeCategory?.displayType === 'Single Page') {
+        console.log('Home category is Single Page type, fetching content...')
         const contentResponse = await fetch(
           `${baseUrl}/api/notion-gallery?category=${homeCategory.id}&t=${timestamp}`
         )
+        console.log('Content response status:', contentResponse.status)
+        
         const contentData = await contentResponse.json() as {
           success: boolean
           items?: any[]
         }
         
+        console.log('Content data:', contentData)
+        
         if (contentData.success && contentData.items && contentData.items.length > 0) {
           // 페이지 우선순위에 따라 선택
           const selectedPage = selectSinglePageByPriority(contentData.items)
           notionPageId = selectedPage.id
+          console.log('Selected page ID for Single Page:', notionPageId)
+        } else {
+          console.error('Failed to fetch content for Single Page:', contentData)
         }
+      } else {
+        console.log('Home category display type:', homeCategory?.displayType)
       }
     
     return {
