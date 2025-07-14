@@ -206,9 +206,37 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 }
 
 export default function DynamicPage({ pageType, notionProps, category, notionPageId, siteConfig }: DynamicPageProps) {
-  // 기존 노션 페이지 렌더링
+  // 기존 노션 페이지 렌더링 - SinglePageView 스타일 적용
   if (pageType === 'notion' && notionProps) {
-    return <NotionPage {...notionProps} />
+    const pageTitle = notionProps.recordMap?.block ? 
+      Object.values(notionProps.recordMap.block).find((block: any) => block.value?.type === 'page')?.value?.properties?.title?.[0]?.[0] || 'Page' 
+      : 'Page'
+
+    return (
+      <>
+        <NextSeo
+          title={pageTitle}
+          description={`${pageTitle} 페이지입니다.`}
+          openGraph={{
+            title: pageTitle,
+            description: `${pageTitle} 페이지입니다.`,
+            type: 'website',
+          }}
+        />
+        
+        <div className="gallery-layout">
+          <OverlayNavigation />
+          
+          <SinglePageView 
+            pageId={pageId as string}
+            title={pageTitle}
+            customNotionProps={notionProps}
+          />
+          
+          <AdminTools />
+        </div>
+      </>
+    )
   }
   
   // 카테고리 페이지 렌더링

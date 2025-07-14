@@ -9,9 +9,10 @@ const EmptyComponent = () => null
 interface SinglePageViewProps {
   pageId: string
   title: string
+  customNotionProps?: any
 }
 
-export function SinglePageView({ pageId, title }: SinglePageViewProps) {
+export function SinglePageView({ pageId, title, customNotionProps }: SinglePageViewProps) {
   const [recordMap, setRecordMap] = useState<ExtendedRecordMap | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,6 +21,13 @@ export function SinglePageView({ pageId, title }: SinglePageViewProps) {
     const fetchPageData = async () => {
       try {
         setLoading(true)
+        
+        // customNotionProps가 있으면 바로 사용
+        if (customNotionProps?.recordMap) {
+          setRecordMap(customNotionProps.recordMap)
+          setLoading(false)
+          return
+        }
         
         if (!pageId) {
           setError('표시할 페이지가 없습니다.')
@@ -48,7 +56,7 @@ export function SinglePageView({ pageId, title }: SinglePageViewProps) {
     }
 
     fetchPageData()
-  }, [pageId])
+  }, [pageId, customNotionProps])
 
   if (loading) {
     return (
