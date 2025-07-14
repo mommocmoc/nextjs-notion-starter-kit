@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useDarkMode } from '@/lib/use-dark-mode'
 import type { NavigationItem } from '../pages/api/navigation'
+import { DarkModeToggle } from './DarkModeToggle'
 import styles from './OverlayNavigation.module.css'
 
 interface OverlayNavigationProps {
@@ -51,6 +52,7 @@ export function OverlayNavigation({ site }: OverlayNavigationProps) {
           </Link>
           
           <div className={styles.navControls}>
+            <DarkModeToggle size="medium" className={styles.darkModeToggle} />
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className={styles.menuToggle}
@@ -80,6 +82,10 @@ export function OverlayNavigation({ site }: OverlayNavigationProps) {
                   </Link>
                 ))
               )}
+            </div>
+            
+            <div className={styles.menuFooter}>
+              <DarkModeToggle size="large" className={styles.mobileToggle} />
             </div>
           </div>
         </div>

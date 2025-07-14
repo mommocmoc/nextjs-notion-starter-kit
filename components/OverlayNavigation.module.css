@@ -38,6 +38,16 @@
   gap: 1rem;
 }
 
+.darkModeToggle {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .darkModeToggle {
+    display: none;
+  }
+}
+
 .themeToggle,
 .menuToggle {
   background: none;
@@ -107,6 +117,19 @@
   transform: translateY(-1px);
 }
 
+.menuFooter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  margin-top: auto;
+  border-top: 1px solid var(--gallery-border);
+}
+
+.mobileToggle {
+  display: block;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -123,7 +146,11 @@
 }
 
 :global(.dark-mode) .overlay {
-  background: rgba(7, 7, 7, 0.95);
+  background: var(--gallery-overlay-bg);
+}
+
+:global(.dark-mode) .menuFooter {
+  border-top-color: var(--gallery-border);
 }
 
 /* Mobile responsive */

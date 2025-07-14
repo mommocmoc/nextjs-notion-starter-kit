@@ -3,6 +3,8 @@
   margin: 0 auto;
   padding: 6rem 2rem 4rem;
   min-height: 100vh;
+  background-color: var(--gallery-bg);
+  color: var(--gallery-text);
 }
 
 .loading {

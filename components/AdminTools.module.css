@@ -13,6 +13,13 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   min-width: 200px;
   font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:global(.dark-mode) .adminPanel {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .adminPanel h3 {
