@@ -81,6 +81,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const navigationResponse = await fetch(`${baseUrl}/api/navigation?t=${timestamp}`)
     console.log('Navigation response status:', navigationResponse.status)
     
+    if (!navigationResponse.ok) {
+      console.error('Navigation API failed with status:', navigationResponse.status)
+      const errorData = await navigationResponse.json().catch(() => ({}))
+      console.error('Navigation API error data:', errorData)
+      throw new Error(`Navigation API failed: ${navigationResponse.status}`)
+    }
+    
     const navigationData = await navigationResponse.json() as {
       success: boolean
       items?: NavigationItem[]

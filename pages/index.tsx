@@ -93,6 +93,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const navigationResponse = await fetch(`${baseUrl}/api/navigation?t=${timestamp}`)
     console.log('Navigation response status:', navigationResponse.status)
     
+    if (!navigationResponse.ok) {
+      console.error('Navigation API failed with status:', navigationResponse.status)
+      const errorData = await navigationResponse.json().catch(() => ({}))
+      console.error('Navigation API error data:', errorData)
+      throw new Error(`Navigation API failed: ${navigationResponse.status}`)
+    }
+    
     const navigationData = await navigationResponse.json() as {
       success: boolean
       items?: NavigationItem[]
@@ -188,6 +195,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
   } catch (error) {
     console.error('Error in getServerSideProps:', error)
+    
+    // 401 오류의 경우 인증 문제임을 명시
+    if (error instanceof Error && error.message.includes('401')) {
+      console.error('AUTHENTICATION ERROR: Please check your Notion API credentials')
+      console.error('Required environment variables:')
+      console.error('- NOTION_TOKEN or NOTION_API_KEY')
+      console.error('- NOTION_NAVIGATION_DB_ID')
+    }
+    
     // 에러 발생 시 기본 갤러리 표시
     return {
       props: {

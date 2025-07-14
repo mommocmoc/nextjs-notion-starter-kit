@@ -47,8 +47,19 @@ export default async function handler(
     if (!navigationDbId) {
       console.error('Missing NOTION_NAVIGATION_DB_ID environment variable')
       return res.status(400).json({ 
+        success: false,
         message: 'Navigation Database ID is required. Set NOTION_NAVIGATION_DB_ID environment variable.',
         error: 'MISSING_NAVIGATION_DB_ID'
+      })
+    }
+
+    const authToken = process.env.NOTION_TOKEN || process.env.NOTION_API_KEY
+    if (!authToken) {
+      console.error('Missing NOTION_TOKEN or NOTION_API_KEY environment variable')
+      return res.status(401).json({ 
+        success: false,
+        message: 'Notion API authentication token is required. Set NOTION_TOKEN or NOTION_API_KEY environment variable.',
+        error: 'MISSING_AUTH_TOKEN'
       })
     }
 
