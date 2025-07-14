@@ -9,12 +9,12 @@ export default siteConfig({
   rootNotionSpaceId: null,
 
   // basic site info (required)
-  name: 'NotionDB to Your Site',
+  name: 'NodeSite.Today',
   domain: 'nextjs-notion-starter-kit-git-dynamic-navigation-cowcowwow.vercel.app',
-  author: 'NotionDB to Your Site',
+  author: 'Studio Cowcowwow',
 
   // open graph metadata (optional)
-  description: 'NotionDB to Your Site',
+  description: 'Today, Your NotionDB turns into Your Site.',
 
   // social usernames (optional)
   // twitter: 'transitive_bs',

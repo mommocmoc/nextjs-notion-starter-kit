@@ -79,6 +79,18 @@ export default siteConfig({
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone)
 
+#### Important: Disable Vercel Authentication
+
+After deploying to Vercel, you need to disable Vercel Authentication for public access:
+
+1. Go to your Vercel project dashboard
+2. Navigate to **Settings** → **Deployment Protection**
+3. Find **Vercel Authentication** section
+4. Set it to **Disabled**
+5. Click **Save**
+
+> ⚠️ **Note**: If you skip this step, your deployed site will require Vercel team authentication to access, making it inaccessible to public visitors.
+
 ## 📖 How It Works
 
 ### Display Types
