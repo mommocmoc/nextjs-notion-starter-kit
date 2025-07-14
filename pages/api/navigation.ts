@@ -44,7 +44,11 @@ export default async function handler(
     console.log('NOTION_API_KEY:', process.env.NOTION_API_KEY ? 'Set' : 'Not set')
 
     if (!navigationDbId) {
-      return res.status(400).json({ message: 'Navigation Database ID is required. Set NOTION_NAVIGATION_DB_ID environment variable.' })
+      console.error('Missing NOTION_NAVIGATION_DB_ID environment variable')
+      return res.status(400).json({ 
+        message: 'Navigation Database ID is required. Set NOTION_NAVIGATION_DB_ID environment variable.',
+        error: 'MISSING_NAVIGATION_DB_ID'
+      })
     }
 
     // 네비게이션 설정 DB 쿼리

@@ -26,12 +26,28 @@ export function OverlayNavigation({ site }: OverlayNavigationProps) {
           success: boolean
           items?: NavigationItem[]
           message?: string
+          error?: string
         }
 
         if (data.success) {
           setNavigationItems(data.items || [])
         } else {
           console.error('Failed to load navigation:', data.message)
+          console.error('Navigation API Error Details:', data)
+          // 환경 변수 오류인 경우 기본 네비게이션 제공
+          if (data.error === 'MISSING_NAVIGATION_DB_ID') {
+            setNavigationItems([
+              {
+                id: 'home',
+                categoryName: 'Home',
+                displayName: 'Home',
+                navigationOrder: 1,
+                displayType: 'Gallery',
+                isActive: true,
+                urlPath: '/'
+              }
+            ])
+          }
         }
       } catch (err) {
         console.error('Failed to fetch navigation:', err)

@@ -101,8 +101,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       if (!homeCategory && navigationData.items.length > 0) {
         homeCategory = navigationData.items[0]
       }
+    } else {
+      console.error('Navigation API failed:', navigationData)
+      // API 실패 시 기본 홈 카테고리 생성
+      homeCategory = {
+        id: 'home',
+        categoryName: 'Home',
+        displayName: 'Home',
+        navigationOrder: 1,
+        displayType: 'Gallery',
+        isActive: true,
+        urlPath: '/'
+      }
+    }
       
-      // Single Page 타입인 경우 노션 페이지 ID 조회
+    // Single Page 타입인 경우 노션 페이지 ID 조회
       if (homeCategory?.displayType === 'Single Page') {
         const contentResponse = await fetch(
           `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/notion-gallery?category=${homeCategory.id}&t=${timestamp}`
@@ -118,7 +131,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           notionPageId = selectedPage.id
         }
       }
-    }
     
     return {
       props: {

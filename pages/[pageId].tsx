@@ -85,14 +85,30 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       category = navigationData.items.find((item: NavigationItem) => 
         item.urlPath === `/${pageId}` || item.categoryName.toLowerCase() === pageId
       )
+    } else {
+      console.error('Navigation API failed:', navigationData)
+      // API 실패 시 기본 동작: 갤러리 모드로 처리
+      category = {
+        id: 'fallback',
+        categoryName: pageId as string,
+        displayName: pageId as string,
+        navigationOrder: 1,
+        displayType: 'Gallery',
+        isActive: true,
+        urlPath: `/${pageId}`
+      }
+    }
+    
+    if (navigationData.success && navigationData.items) {
       console.log('Looking for:', `/${pageId}`, 'or', pageId)
       console.log('Available categories:', navigationData.items.map((item: NavigationItem) => ({ 
         urlPath: item.urlPath, 
         categoryName: item.categoryName,
         displayName: item.displayName
       })))
-      console.log('Found category:', category)
     }
+    
+    console.log('Found category:', category)
     
     // 카테고리가 발견되면 카테고리 페이지로 처리
     if (category) {
