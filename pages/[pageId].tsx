@@ -67,9 +67,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   
   try {
     // 먼저 네비게이션 데이터 조회하여 카테고리인지 확인
-    // 캐시 무효화를 위한 타임스탬프 추가
+    // 서버사이드에서는 절대 URL이 필요
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    
     const timestamp = new Date().getTime()
-    const navigationResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/navigation?t=${timestamp}`)
+    const navigationResponse = await fetch(`${baseUrl}/api/navigation?t=${timestamp}`)
     const navigationData = await navigationResponse.json() as {
       success: boolean
       items?: NavigationItem[]
@@ -117,7 +121,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       // Single Page 타입인 경우 노션 페이지 ID 조회
       if (category.displayType === 'Single Page') {
         const contentResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/notion-gallery?category=${category.id}&t=${timestamp}`
+          `${baseUrl}/api/notion-gallery?category=${category.id}&t=${timestamp}`
         )
         const contentData = await contentResponse.json() as {
           success: boolean

@@ -10,11 +10,13 @@ Make sure to set the following environment variables in your Vercel dashboard:
 - `NOTION_API_KEY` - Your Notion integration token
 - `NOTION_DATABASE_ID` - Your main content database ID
 - `NOTION_NAVIGATION_DB_ID` - Your navigation database ID
-- `NEXT_PUBLIC_SITE_URL` - Your site URL (e.g., `https://yourdomain.vercel.app`)
 
 **Optional:**
+- `NEXT_PUBLIC_SITE_URL` - Your site URL (only needed for custom domains)
 - `NEXT_PUBLIC_DOMAIN` - Your domain name
 - `REVALIDATE_SECRET` - Secret for manual cache revalidation
+
+**Note:** Vercel automatically provides `VERCEL_URL` environment variable, so `NEXT_PUBLIC_SITE_URL` is only needed for custom domains or special cases.
 
 ### 2. Common Issues & Solutions
 
