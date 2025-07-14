@@ -38,14 +38,7 @@ export default async function handler(
   try {
     const navigationDbId = process.env.NOTION_NAVIGATION_DB_ID
 
-    console.log('=== Navigation API Debug ===')
-    console.log('NODE_ENV:', process.env.NODE_ENV)
-    console.log('NOTION_NAVIGATION_DB_ID:', navigationDbId ? 'Set' : 'Not set')
-    console.log('NOTION_TOKEN:', process.env.NOTION_TOKEN ? 'Set' : 'Not set')
-    console.log('NOTION_API_KEY:', process.env.NOTION_API_KEY ? 'Set' : 'Not set')
-
     if (!navigationDbId) {
-      console.error('Missing NOTION_NAVIGATION_DB_ID environment variable')
       return res.status(400).json({ 
         success: false,
         message: 'Navigation Database ID is required. Set NOTION_NAVIGATION_DB_ID environment variable.',
@@ -55,7 +48,6 @@ export default async function handler(
 
     const authToken = process.env.NOTION_TOKEN || process.env.NOTION_API_KEY
     if (!authToken) {
-      console.error('Missing NOTION_TOKEN or NOTION_API_KEY environment variable')
       return res.status(401).json({ 
         success: false,
         message: 'Notion API authentication token is required. Set NOTION_TOKEN or NOTION_API_KEY environment variable.',
@@ -80,18 +72,9 @@ export default async function handler(
       ]
     })
 
-    console.log('Notion API Response:', {
-      resultCount: response.results.length,
-      hasMore: response.has_more
-    })
-
     // 네비게이션 데이터 변환
-    const navigationItems: NavigationItem[] = response.results.map((page: any, index: number) => {
+    const navigationItems: NavigationItem[] = response.results.map((page: any) => {
       const properties = page.properties
-      
-      console.log(`Processing navigation item ${index + 1}:`)
-      console.log('Page ID:', page.id)
-      console.log('Available properties:', Object.keys(properties))
       
       // 카테고리명 - Relation 속성에서 ID 추출
       const categoryRelation = properties['Studio Cowcowwow 블로그']?.relation?.[0]?.id || ''
@@ -114,7 +97,7 @@ export default async function handler(
       // URL 경로 - 'URL 경로' 속성
       const urlPath = properties['URL 경로']?.rich_text?.[0]?.plain_text || `/${categoryName.toLowerCase()}`
 
-      const navigationItem = {
+      return {
         id: page.id,
         categoryName,
         displayName,
@@ -123,25 +106,9 @@ export default async function handler(
         isActive,
         urlPath
       }
-      
-      console.log('Generated navigation item:', navigationItem)
-      
-      return navigationItem
     })
 
     const sortedItems = navigationItems.sort((a, b) => a.navigationOrder - b.navigationOrder)
-    
-    console.log('Final navigation response:', {
-      success: true,
-      itemCount: sortedItems.length,
-      items: sortedItems.map(item => ({
-        displayName: item.displayName,
-        navigationOrder: item.navigationOrder,
-        displayType: item.displayType,
-        isActive: item.isActive,
-        urlPath: item.urlPath
-      }))
-    })
 
     res.status(200).json({
       success: true,
@@ -150,7 +117,6 @@ export default async function handler(
     })
 
   } catch (error) {
-    console.error('Navigation API Error:', error)
     res.status(500).json({ 
       success: false,
       message: 'Failed to fetch navigation data',

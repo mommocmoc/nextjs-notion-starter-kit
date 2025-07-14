@@ -86,17 +86,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const baseUrl = `${protocol}://${host}`
     
     const timestamp = new Date().getTime()
-    console.log('=== HOME PAGE getServerSideProps ===')
-    console.log('baseUrl:', baseUrl)
-    console.log('Fetching navigation data...')
-    
     const navigationResponse = await fetch(`${baseUrl}/api/navigation?t=${timestamp}`)
-    console.log('Navigation response status:', navigationResponse.status)
     
     if (!navigationResponse.ok) {
-      console.error('Navigation API failed with status:', navigationResponse.status)
-      const errorData = await navigationResponse.json().catch(() => ({}))
-      console.error('Navigation API error data:', errorData)
       throw new Error(`Navigation API failed: ${navigationResponse.status}`)
     }
     
@@ -105,33 +97,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       items?: NavigationItem[]
     }
     
-    console.log('Navigation data:', navigationData)
-    
     let homeCategory = null
     let notionPageId = null
     
     if (navigationData.success && navigationData.items) {
-      console.log('Available navigation items:', navigationData.items.map(item => ({
-        categoryName: item.categoryName,
-        displayName: item.displayName,
-        displayType: item.displayType,
-        urlPath: item.urlPath
-      })))
-      
       // Home 카테고리 찾기
       homeCategory = navigationData.items.find((item: NavigationItem) => 
         item.categoryName === 'Home' || item.urlPath === '/'
       )
       
-      console.log('Found home category:', homeCategory)
-      
       // Home 카테고리가 없으면 첫 번째 항목 사용
       if (!homeCategory && navigationData.items.length > 0) {
         homeCategory = navigationData.items[0]
-        console.log('Using first item as home category:', homeCategory)
       }
     } else {
-      console.error('Navigation API failed:', navigationData)
       // API 실패 시 기본 홈 카테고리 생성
       homeCategory = {
         id: 'home',
@@ -142,34 +121,24 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         isActive: true,
         urlPath: '/'
       }
-      console.log('Using fallback home category:', homeCategory)
     }
       
     // Single Page 타입인 경우 노션 페이지 ID 조회
       if (homeCategory?.displayType === 'Single Page') {
-        console.log('Home category is Single Page type, fetching content...')
         const contentResponse = await fetch(
           `${baseUrl}/api/notion-gallery?category=${homeCategory.id}&t=${timestamp}`
         )
-        console.log('Content response status:', contentResponse.status)
         
         const contentData = await contentResponse.json() as {
           success: boolean
           items?: any[]
         }
         
-        console.log('Content data:', contentData)
-        
         if (contentData.success && contentData.items && contentData.items.length > 0) {
           // 페이지 우선순위에 따라 선택
           const selectedPage = selectSinglePageByPriority(contentData.items)
           notionPageId = selectedPage.id
-          console.log('Selected page ID for Single Page:', notionPageId)
-        } else {
-          console.error('Failed to fetch content for Single Page:', contentData)
         }
-      } else {
-        console.log('Home category display type:', homeCategory?.displayType)
       }
     
     return {
@@ -194,16 +163,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     }
   } catch (error) {
-    console.error('Error in getServerSideProps:', error)
-    
-    // 401 오류의 경우 인증 문제임을 명시
-    if (error instanceof Error && error.message.includes('401')) {
-      console.error('AUTHENTICATION ERROR: Please check your Notion API credentials')
-      console.error('Required environment variables:')
-      console.error('- NOTION_TOKEN or NOTION_API_KEY')
-      console.error('- NOTION_NAVIGATION_DB_ID')
-    }
-    
     // 에러 발생 시 기본 갤러리 표시
     return {
       props: {
